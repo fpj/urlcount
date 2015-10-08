@@ -9,6 +9,11 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
+/**
+ * Produces messages to be published to a Kafka topic.
+ *
+ */
 public class UrlCountSource {
     public static Logger logger = LoggerFactory.getLogger(UrlCountSource.class);
     

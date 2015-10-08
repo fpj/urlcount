@@ -10,6 +10,10 @@ import org.rocksdb.RocksDBException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Key-value store backed by RocksDB.
+ *
+ */
 public class RocksDBStore implements KVStore {
     public static Logger logger = LoggerFactory.getLogger(RocksDBStore.class);
     

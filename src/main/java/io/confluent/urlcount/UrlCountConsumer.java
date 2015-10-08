@@ -45,10 +45,12 @@ public class UrlCountConsumer implements Runnable {
         topicList.add(properties.getProperty("urlcount.topic"));
         consumer.subscribe(topicList);
         while(isRunning) {
+            // Get next batch of records
             ConsumerRecords<String, byte[]> records = consumer.poll(1000);
             if(records != null) {
                 logger.info("Records count: {}", records.count());
                 try {
+                    // Process batch of records
                     for (ConsumerRecord<String, byte[]> record : records) {
                         String msg = record.key();
                         logger.debug("Message: " + msg + ", offset " + record.offset());
@@ -64,6 +66,7 @@ public class UrlCountConsumer implements Runnable {
                             count += bb.getInt();
                         }
                         
+                        // Update kv store
                         bb = ByteBuffer.allocate(4);
                         bb.putInt(count);
                         try{
@@ -74,6 +77,9 @@ public class UrlCountConsumer implements Runnable {
                         
                         tp = new TopicPartition(record.topic(), record.partition());
                         offset = record.offset();
+                        
+                        // Commits offset regularly, but not
+                        // upon every record
                         if(offset % 50 == 0) {
                             consumer.commitAsync();
                         }
@@ -92,6 +98,8 @@ public class UrlCountConsumer implements Runnable {
                 
             } 
         }
+        // Not sure if we need this call to commit here at all,
+        // but I haven't checked if close also calls commit.
         consumer.commitSync();
         consumer.close();   
         logger.info("Shutting down Thread: " + Thread.currentThread().getId());

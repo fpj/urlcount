@@ -5,11 +5,16 @@ import io.confluent.urlcount.UrlCountException.Code;
 import java.io.IOException;
 import java.util.HashMap;
 
+
+/**
+ * Simple in-memory key-value store
+ *
+ */
 public class InMemoryKVStore implements KVStore {
-    HashMap<byte[], byte[]> map;
+    HashMap<ByteArrayKey, byte[]> map;
     
     InMemoryKVStore() {
-        this.map = new HashMap<byte[], byte[]>(1000);
+        this.map = new HashMap<ByteArrayKey, byte[]>(1000);
     }
     
     public void init() throws IOException {
@@ -22,7 +27,7 @@ public class InMemoryKVStore implements KVStore {
 
     public void put(byte[] key, byte[] value) throws IOException {
         try {
-            map.put(key, value);
+            map.put(new ByteArrayKey(key), value);
             
         } catch (Exception e) {
             throw new IOException(e);
@@ -31,19 +36,20 @@ public class InMemoryKVStore implements KVStore {
     
     public void put(byte[] key, byte[] value, long version)
     throws IOException {
+        ByteArrayKey bak = new ByteArrayKey(key); 
         try {
             StoreElement element = null;
-            if(map.containsKey(key)) {
+            if(map.containsKey(bak)) {
                 element = new StoreElement(map.get(key));
                 if(version > element.getVersion()) {
                     element.set(version, value);
-                    map.put(key, element.getBytes());
+                    map.put(bak, element.getBytes());
                 } else {
                     throw UrlCountException.create(Code.VERSION_MISMATCH);
                 }
             } else {
                 element = new StoreElement(version, value);
-                map.put(key, element.getBytes());
+                map.put(bak, element.getBytes());
             }
         } catch (Exception e) {
             throw new IOException(e);

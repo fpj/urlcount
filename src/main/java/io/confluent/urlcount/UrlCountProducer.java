@@ -12,6 +12,11 @@ import org.apache.kafka.clients.producer.RecordMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
+/**
+ * Publishes events from source.
+ *
+ */
 public class UrlCountProducer {
     public static Logger logger = LoggerFactory.getLogger(UrlCountProducer.class);
     
