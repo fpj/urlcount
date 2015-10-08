@@ -12,12 +12,21 @@ import org.slf4j.LoggerFactory;
 public class UrlCountSource {
     public static Logger logger = LoggerFactory.getLogger(UrlCountSource.class);
     
+    enum Type {FILE, SIMPLE};
     UrlCountProducer producer;
     File urlLogFile;
+    Type type;
+    
     
     UrlCountSource(Properties properties) {
         this.producer = new UrlCountProducer(properties);
         this.urlLogFile = new File(properties.getProperty("urlcount.urlLogFile"));
+        String typeValue = properties.getProperty("urlcount.type");
+        if(typeValue == null) {
+            this.type = Type.SIMPLE;
+        } else {
+            this.type = Type.valueOf(typeValue);
+        }
     }
     
     public void loadFile() throws IOException {
@@ -74,7 +83,15 @@ public class UrlCountSource {
           @Override
           public void run() {
               try {
-                source.pushLines();
+                  switch(source.type) {
+                  case FILE:
+                      source.loadFile();
+                      break;
+                  case SIMPLE:
+                      source.pushLines();
+                      break;
+                  default:
+                  }
             } catch (IOException e) {
                 e.printStackTrace();
             }
